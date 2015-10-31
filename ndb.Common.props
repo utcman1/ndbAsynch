@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <mysql_root>D:/work/mysql-cluster-gpl-7.4.7</mysql_root>
+    <mysql_vsproj>D:/work/mysql-cluster-gpl-7.4.7/vsproj</mysql_vsproj>
+  </PropertyGroup>
+  <PropertyGroup>
+    <IncludePath>$(mysql_root)/include;$(mysql_vsproj)/include;$(mysql_root)/storage/ndb/include;$(mysql_root)/storage/ndb/include/portlib;$(mysql_vsproj)/storage/ndb/include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(mysql_vsproj)/dbug/$(Configuration);$(mysql_vsproj)/extra/yassl/$(Configuration);$(mysql_vsproj)/extra/yassl/taocrypt/$(Configuration);$(mysql_vsproj)/mysys/$(Configuration);$(mysql_vsproj)/mysys_ssl/$(Configuration);$(mysql_vsproj)/strings/$(Configuration);$(mysql_vsproj)/storage/ndb/src/common/debugger/$(Configuration);$(mysql_vsproj)/storage/ndb/src/common/debugger/signaldata/$(Configuration);$(mysql_vsproj)/storage/ndb/src/common/logger/$(Configuration);$(mysql_vsproj)/storage/ndb/src/common/mgmcommon/$(Configuration);$(mysql_vsproj)/storage/ndb/src/common/portlib/$(Configuration);$(mysql_vsproj)/storage/ndb/src/common/transporter/$(Configuration);$(mysql_vsproj)/storage/ndb/src/common/util/$(Configuration);$(mysql_vsproj)/storage/ndb/src/mgmapi/$(Configuration);$(mysql_vsproj)/storage/ndb/src/mgmsrv/$(Configuration);$(mysql_vsproj)/storage/ndb/src/ndbapi/$(Configuration);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>dbug.lib;yassl.lib;taocrypt.lib;mysys.lib;mysys_ssl.lib;strings.lib;ndbtrace.lib;ndbsignaldata.lib;ndblogger.lib;ndbmgmcommon.lib;ndbportlib.lib;ndbtransport.lib;ndbgeneral.lib;ndbmgmapi.lib;ndbconf.lib;ndbapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="mysql_root">
+      <Value>$(mysql_root)</Value>
+    </BuildMacro>
+    <BuildMacro Include="mysql_vsproj">
+      <Value>$(mysql_vsproj)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
