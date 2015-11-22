@@ -42,7 +42,16 @@
     <ClInclude Include="src\ndb\CNdbRecordSpec.hpp">
       <Filter>src\ndb</Filter>
     </ClInclude>
+    <ClInclude Include="src\ndb\CNdbThreadContext.hpp">
+      <Filter>src\ndb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ndb\CNdbThreadContextImpl.hpp">
+      <Filter>src\ndb</Filter>
+    </ClInclude>
     <ClInclude Include="src\ndb\CNdbThreadManager.hpp">
+      <Filter>src\ndb</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ndb\CNdbThreadState.hpp">
       <Filter>src\ndb</Filter>
     </ClInclude>
     <ClInclude Include="src\ndb\CNdbThreadWorker.hpp">
@@ -54,6 +63,15 @@
     <ClInclude Include="src\user\CUserRecord.hpp">
       <Filter>src\user</Filter>
     </ClInclude>
+    <ClInclude Include="src\user\CUserRecordPool.hpp">
+      <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\user\CUserThreadContextImpl.hpp">
+      <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\user\CUserThreadContextImplBuilder.hpp">
+      <Filter>src\user</Filter>
+    </ClInclude>
     <ClInclude Include="src\util\CLog.hpp">
       <Filter>src\util</Filter>
     </ClInclude>
@@ -62,15 +80,6 @@
     </ClInclude>
     <ClInclude Include="src\util\CPopen.hpp">
       <Filter>src\util</Filter>
-    </ClInclude>
-    <ClInclude Include="src\user\CUserThreadState.hpp">
-      <Filter>src\user</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ndb\CNdbThreadState.hpp">
-      <Filter>src\ndb</Filter>
-    </ClInclude>
-    <ClInclude Include="src\user\CUserThreadStateEx.hpp">
-      <Filter>src\user</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -89,10 +98,31 @@
     <ClCompile Include="src\ndb\CNdbInit.cpp">
       <Filter>src\ndb</Filter>
     </ClCompile>
+    <ClCompile Include="src\ndb\CNdbThreadContext.cpp">
+      <Filter>src\ndb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ndb\CNdbThreadManager.cpp">
+      <Filter>src\ndb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ndb\CNdbThreadState.cpp">
+      <Filter>src\ndb</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ndb\CNdbThreadWorker.cpp">
+      <Filter>src\ndb</Filter>
+    </ClCompile>
     <ClCompile Include="src\ndb\CNdbTransaction.cpp">
       <Filter>src\ndb</Filter>
     </ClCompile>
     <ClCompile Include="src\user\CUserRecord.cpp">
+      <Filter>src\user</Filter>
+    </ClCompile>
+    <ClCompile Include="src\user\CUserRecordPool.cpp">
+      <Filter>src\user</Filter>
+    </ClCompile>
+    <ClCompile Include="src\user\CUserThreadContextImpl.cpp">
+      <Filter>src\user</Filter>
+    </ClCompile>
+    <ClCompile Include="src\user\CUserThreadContextImplBuilder.cpp">
       <Filter>src\user</Filter>
     </ClCompile>
     <ClCompile Include="src\util\CLog.cpp">
@@ -107,25 +137,10 @@
     <ClCompile Include="src\notusing\flexAsynch.cpp">
       <Filter>src\notusing</Filter>
     </ClCompile>
-    <ClCompile Include="src\user\CUserThreadState.cpp">
-      <Filter>src\user</Filter>
-    </ClCompile>
-    <ClCompile Include="src\user\CUserThreadStateEx.cpp">
-      <Filter>src\user</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
     <None Include="src\ndb\CNdbRecordSpec.inl">
-      <Filter>src\ndb</Filter>
-    </None>
-    <None Include="src\ndb\CNdbThreadManager.inl">
-      <Filter>src\ndb</Filter>
-    </None>
-    <None Include="src\ndb\CNdbThreadWorker.inl">
-      <Filter>src\ndb</Filter>
-    </None>
-    <None Include="src\ndb\CNdbThreadState.inl">
       <Filter>src\ndb</Filter>
     </None>
   </ItemGroup>

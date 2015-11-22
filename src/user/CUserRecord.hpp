@@ -10,13 +10,13 @@ struct CTestData
 };
 
 
-class CUserThreadState;
+class CUserRecordPool;
 struct CTestRecord
 {
 	NdbTransaction*		pTran = nullptr;
 	CTestKey			Key;
 	CTestData			Data;
-	CUserThreadState*	pUserThreadState = nullptr;
+	CUserRecordPool*	pUserRecordPool = nullptr;
 };
 
 

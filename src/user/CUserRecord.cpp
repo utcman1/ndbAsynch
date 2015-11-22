@@ -2,7 +2,6 @@
 #include <util/CLog.hpp>
 #include <ndb/CNdb.hpp>
 #include <ndb/CNdbRecordSpec.hpp>
-#include <ndb/CNdbRecordSpec.inl>
 #include <user/CUserRecord.hpp>
 
 

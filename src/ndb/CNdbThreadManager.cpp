@@ -1,5 +1,13 @@
-﻿template<typename T>
-bool CNdbThreadManager<T>::Release()
+﻿#include <stdafx.hpp>
+#include <util/CLog.hpp>
+#include <ndb/CNdbThreadState.hpp>
+#include <ndb/CNdbThreadContext.hpp>
+#include <ndb/CNdbThreadWorker.hpp>
+#include <ndb/CNdbThreadManager.hpp>
+
+
+
+bool CNdbThreadManager::Release()
 {
 	LOG_NDB_FUNCTION();
 
@@ -12,23 +20,21 @@ bool CNdbThreadManager<T>::Release()
 	return true;
 }
 
-template<typename T>
-bool CNdbThreadManager<T>::CreateAllThread(CNdbClusterConnection& _NdbClusterConnection)
+bool CNdbThreadManager::CreateAllThread(
+	CNdbClusterConnection& _NdbClusterConnection,
+	CNdbThreadContextImplBuilder& _ImplBuilder, const int _MaxThreadWorker)
 {
 	LOG_NDB_FUNCTION();
 
-	m_vecWorker.reserve(m_MaxThreadWorker);
+	m_vecWorker.reserve(_MaxThreadWorker);
 
-	for (int i = 0; m_MaxThreadWorker > i; ++i)
+	for (int i = 0; _MaxThreadWorker > i; ++i)
 	{
-		CNdbThreadWorker<T>* pWorker = new CNdbThreadWorker<T>(_NdbClusterConnection);
-		if (nullptr == pWorker)
-		{
-			LogNdbCritical << "FAIL : new CNdbThreadWorker()" << endl;
-			return false;
-		}
+		CNdbThreadWorker* pWorker =
+			new CNdbThreadWorker(_NdbClusterConnection);
+		assert(nullptr != pWorker);
 
-		if (!pWorker->Init())
+		if (!pWorker->Init(_ImplBuilder))
 		{
 			return false;
 		}
@@ -39,8 +45,7 @@ bool CNdbThreadManager<T>::CreateAllThread(CNdbClusterConnection& _NdbClusterCon
 	return true;
 }
 
-template<typename T>
-bool CNdbThreadManager<T>::DestroyAllThread()
+bool CNdbThreadManager::DestroyAllThread()
 {
 	LOG_NDB_FUNCTION();
 
@@ -54,8 +59,7 @@ bool CNdbThreadManager<T>::DestroyAllThread()
 	return true;
 }
 
-template<typename T>
-bool CNdbThreadManager<T>::CheckAllThreadState(const EThreadState _ThreadState) const
+bool CNdbThreadManager::CheckAllThreadState(const EThreadState _ThreadState) const
 {
 	for (auto pWorker : m_vecWorker)
 	{
@@ -68,21 +72,18 @@ bool CNdbThreadManager<T>::CheckAllThreadState(const EThreadState _ThreadState) 
 
 
 
-template<typename T>
-CNdbThreadManager<T>::~CNdbThreadManager()
+CNdbThreadManager::~CNdbThreadManager()
 {
 	CNdbThreadManager::Release();
 }
 
-template<typename T>
-bool CNdbThreadManager<T>::Init(
-	CNdbClusterConnection& _NdbClusterConnection, const int _MaxThreadWorker)
+bool CNdbThreadManager::Init(CNdbClusterConnection& _NdbClusterConnection,
+	CNdbThreadContextImplBuilder& _ImplBuilder, const int _MaxThreadWorker)
 {
 	LOG_NDB_FUNCTION();
 
-	m_MaxThreadWorker = _MaxThreadWorker;
-
-	if (!CNdbThreadManager::CreateAllThread(_NdbClusterConnection))
+	if (!CNdbThreadManager::CreateAllThread(
+		_NdbClusterConnection, _ImplBuilder, _MaxThreadWorker))
 		return false;
 
 	if (!CNdbThreadManager::WaitAllThreadState(ETS_Idle))
@@ -91,8 +92,7 @@ bool CNdbThreadManager<T>::Init(
 	return true;
 }
 
-template<typename T>
-bool CNdbThreadManager<T>::WaitAllThreadState(
+bool CNdbThreadManager::WaitAllThreadState(
 	const EThreadState _ThreadState, const int _TimeOutSec) const
 {
 	LOG_NDB_FUNCTION();
@@ -112,8 +112,7 @@ bool CNdbThreadManager<T>::WaitAllThreadState(
 	return false;
 }
 
-template<typename T>
-bool CNdbThreadManager<T>::TransitIdleToRun()
+bool CNdbThreadManager::TransitIdleToRun()
 {
 	LOG_NDB_FUNCTION();
 

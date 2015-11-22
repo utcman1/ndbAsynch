@@ -1,19 +1,13 @@
 ﻿#include <stdafx.hpp>
-#include <const.hpp>
-#include <util/CLog.hpp>
 #include <ndb/CNdbInit.hpp>
 #include <ndb/CNdbClusterConnection.hpp>
-#include <ndb/CNdb.hpp>
-#include <ndb/CNdbRecordSpec.hpp>
-#include <ndb/CNdbRecordSpec.inl>
 #include <ndb/CNdbThreadState.hpp>
-#include <ndb/CNdbThreadState.inl>
+#include <ndb/CNdbThreadContext.hpp>
 #include <ndb/CNdbThreadWorker.hpp>
-#include <ndb/CNdbThreadWorker.inl>
 #include <ndb/CNdbThreadManager.hpp>
-#include <ndb/CNdbThreadManager.inl>
-#include <user/CUserRecord.hpp>
-#include <user/CUserThreadState.hpp>
+
+#include <ndb/CNdbThreadContextImpl.hpp>
+#include <user/CUserThreadContextImplBuilder.hpp>
 
 
 
@@ -28,8 +22,8 @@ int main()
 	if (!NdbClusterConnection.Init())
 		return -1;
 
-	CNdbThreadManager<CUserThreadState> NdbThreadManager;
-	if (!NdbThreadManager.Init(NdbClusterConnection, MaxThreadWorker))
+	CNdbThreadManager NdbThreadManager;
+	if (!NdbThreadManager.Init(NdbClusterConnection, CUserThreadContextImplBuilder()))
 		return -1;
 
 	NdbThreadManager.TransitIdleToRun();

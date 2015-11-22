@@ -1,19 +1,21 @@
 ﻿class CNdbClusterConnection;
 
+
+
 class CNdb
 	: protected Ndb
 {
 public:
-	// CUserThreadState에서 호출할 함수들
+	// CUser*에서 호출할 함수들
 	using Ndb::getDictionary;
 	using Ndb::setDatabaseName;
 	using Ndb::getNdbError;
 	using Ndb::startTransaction;
 	using Ndb::closeTransaction;
+	using Ndb::sendPollNdb;
 
-protected:
-	// 생성자를 직접 호출할 일이 없다.
-	// 상속된 클래스에서 생성자를 호출한다.
+public:
+	// 이 함수는 CNdbThreadWorker에서만 호출할거다
 	CNdb(CNdbClusterConnection& _NdbClusterConnection);
-	bool Init(const int _MaxNoOfTransactions = 256, const int _Timeout = 60);
+	bool Init(const int _MaxNoOfTransactions = MaxTransactionPerNdb, const int _Timeout = 60);
 };

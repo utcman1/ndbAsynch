@@ -18,4 +18,5 @@
 #include <util/NdbOut.hpp>
 #include <util/OutputStream.hpp>
 
-#include "compat.hpp"
+#include <compat.hpp>
+#include <const.hpp>

@@ -1,4 +1,4 @@
-﻿class CUserThreadState
+﻿class CUserRecordPool
 {
 protected:
 	CNdbRecordSpec<CTestKey>*	m_pKeyRecordSpec = nullptr;

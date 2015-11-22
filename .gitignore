@@ -1,2 +1,8 @@
 ndbAsynch
 obj/
+Debug/
+Release/
+ipch/
+ndbAsynch.opensdf
+ndbAsynch.sdf
+ndbAsynch.v12.suo

@@ -1,15 +1,14 @@
 ﻿#include <stdafx.hpp>
-#include <const.hpp>
 #include <util/CLog.hpp>
 #include <ndb/CNdb.hpp>
 #include <ndb/CNdbRecordSpec.hpp>
 #include <ndb/CNdbRecordSpec.inl>
 #include <user/CUserRecord.hpp>
-#include <user/CUserThreadState.hpp>
+#include <user/CUserRecordPool.hpp>
 
 
 
-void CUserThreadState::UserAsynchCallback(int _Result,
+void CUserRecordPool::UserAsynchCallback(int _Result,
 	NdbTransaction* _pTran, void* _pRecord)
 {
 	if (0 != _Result)
@@ -18,12 +17,12 @@ void CUserThreadState::UserAsynchCallback(int _Result,
 	}
 
 	CTestRecord* pRecord = static_cast<CTestRecord*>(_pRecord);
-	pRecord->pUserThreadState->DequeTran(pRecord);
+	pRecord->pUserRecordPool->DequeTran(pRecord);
 }
 
 
 
-bool CUserThreadState::InitRecordSpec(CNdb& _Ndb)
+bool CUserRecordPool::InitRecordSpec(CNdb& _Ndb)
 {
 	LOG_USER_FUNCTION();
 
@@ -62,7 +61,7 @@ bool CUserThreadState::InitRecordSpec(CNdb& _Ndb)
 	return true;
 }
 
-bool CUserThreadState::InitRecordPool()
+bool CUserRecordPool::InitRecordPool()
 {
 	LOG_USER_FUNCTION();
 
@@ -70,14 +69,14 @@ bool CUserThreadState::InitRecordPool()
 
 	for (size_t i = 0; m_vecRecordPool.capacity() > i; ++i)
 	{
-		m_vecRecordPool[i].pUserThreadState = this;
+		m_vecRecordPool[i].pUserRecordPool = this;
 		m_stackFreeRecordPool.push(&m_vecRecordPool[i]);
 	}
 
 	return true;
 }
 
-bool CUserThreadState::InitOnCreate(CNdb& _Ndb)
+bool CUserRecordPool::InitOnCreate(CNdb& _Ndb)
 {
 	LOG_USER_FUNCTION();
 
@@ -90,7 +89,7 @@ bool CUserThreadState::InitOnCreate(CNdb& _Ndb)
 	return true;
 }
 
-CTestRecord* CUserThreadState::AllocRecord()
+CTestRecord* CUserRecordPool::AllocRecord()
 {
 	LOG_USER_FUNCTION();
 
@@ -102,7 +101,7 @@ CTestRecord* CUserThreadState::AllocRecord()
 	return ret;
 }
 
-bool CUserThreadState::FreeRecord(CTestRecord* _pRecord)
+bool CUserRecordPool::FreeRecord(CTestRecord* _pRecord)
 {
 	LOG_USER_FUNCTION();
 
@@ -111,11 +110,11 @@ bool CUserThreadState::FreeRecord(CTestRecord* _pRecord)
 	return true;
 }
 
-CTestRecord* CUserThreadState::EnqueTran(CNdb& _Ndb, const int _Num)
+CTestRecord* CUserRecordPool::EnqueTran(CNdb& _Ndb, const int _Num)
 {
 	LOG_USER_FUNCTION();
 
-	CTestRecord* pRecord = CUserThreadState::AllocRecord();
+	CTestRecord* pRecord = CUserRecordPool::AllocRecord();
 	if (nullptr == pRecord)
 	{
 		// 실패하는 경우의 로그는 이미 있다.
@@ -126,7 +125,7 @@ CTestRecord* CUserThreadState::EnqueTran(CNdb& _Ndb, const int _Num)
 	if (nullptr == pTran)
 	{
 		LogUserError << _Ndb.getNdbError() << endl;
-		CUserThreadState::FreeRecord(pRecord);
+		CUserRecordPool::FreeRecord(pRecord);
 		return nullptr;
 	}
 
@@ -159,23 +158,23 @@ CTestRecord* CUserThreadState::EnqueTran(CNdb& _Ndb, const int _Num)
 	}
 
 	USER_CALL_FUNCTION(pTran->executeAsynchPrepare(NdbTransaction::Commit,
-		&CUserThreadState::UserAsynchCallback, pRecord));
+		&CUserRecordPool::UserAsynchCallback, pRecord));
 	return pRecord;
 }
 
-bool CUserThreadState::DequeTran(CTestRecord* _pRecord)
+bool CUserRecordPool::DequeTran(CTestRecord* _pRecord)
 {
 	LOG_USER_FUNCTION();
 
 	USER_CALL_FUNCTION(_pRecord->pTran->close());
 
-	if (!CUserThreadState::FreeRecord(_pRecord))
+	if (!CUserRecordPool::FreeRecord(_pRecord))
 		return false;
 
 	return true;
 }
 
-int CUserThreadState::EnqueLoop(CNdb& _Ndb)
+int CUserRecordPool::EnqueLoop(CNdb& _Ndb)
 {
 	LOG_USER_FUNCTION();
 	static int idx = 1;

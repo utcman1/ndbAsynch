@@ -18,29 +18,37 @@
     <ClInclude Include="src\ndb\CNdbClusterConnection.hpp" />
     <ClInclude Include="src\ndb\CNdbInit.hpp" />
     <ClInclude Include="src\ndb\CNdbRecordSpec.hpp" />
+    <ClInclude Include="src\ndb\CNdbThreadContext.hpp" />
+    <ClInclude Include="src\ndb\CNdbThreadContextImpl.hpp" />
     <ClInclude Include="src\ndb\CNdbThreadManager.hpp" />
     <ClInclude Include="src\ndb\CNdbThreadState.hpp" />
     <ClInclude Include="src\ndb\CNdbThreadWorker.hpp" />
     <ClInclude Include="src\ndb\CNdbTransaction.hpp" />
     <ClInclude Include="src\user\CUserRecord.hpp" />
-    <ClInclude Include="src\user\CUserThreadState.hpp" />
-    <ClInclude Include="src\user\CUserThreadStateEx.hpp" />
+    <ClInclude Include="src\user\CUserRecordPool.hpp" />
+    <ClInclude Include="src\user\CUserThreadContextImpl.hpp" />
+    <ClInclude Include="src\user\CUserThreadContextImplBuilder.hpp" />
     <ClInclude Include="src\util\CLog.hpp" />
     <ClInclude Include="src\util\CMysqlConfig.hpp" />
     <ClInclude Include="src\util\CPopen.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ndb\CNdb.cpp" />
     <ClCompile Include="src\ndb\CNdbClusterConnection.cpp" />
     <ClCompile Include="src\ndb\CNdbInit.cpp" />
+    <ClCompile Include="src\ndb\CNdbThreadContext.cpp" />
+    <ClCompile Include="src\ndb\CNdbThreadManager.cpp" />
+    <ClCompile Include="src\ndb\CNdbThreadState.cpp" />
+    <ClCompile Include="src\ndb\CNdbThreadWorker.cpp" />
     <ClCompile Include="src\ndb\CNdbTransaction.cpp" />
     <ClCompile Include="src\user\CUserRecord.cpp" />
-    <ClCompile Include="src\user\CUserThreadState.cpp" />
-    <ClCompile Include="src\user\CUserThreadStateEx.cpp" />
+    <ClCompile Include="src\user\CUserRecordPool.cpp" />
+    <ClCompile Include="src\user\CUserThreadContextImpl.cpp" />
+    <ClCompile Include="src\user\CUserThreadContextImplBuilder.cpp" />
     <ClCompile Include="src\util\CLog.cpp" />
     <ClCompile Include="src\util\CMysqlConfig.cpp" />
     <ClCompile Include="src\util\CPopen.cpp" />
@@ -51,9 +59,6 @@
   <ItemGroup>
     <None Include="Makefile" />
     <None Include="src\ndb\CNdbRecordSpec.inl" />
-    <None Include="src\ndb\CNdbThreadManager.inl" />
-    <None Include="src\ndb\CNdbThreadState.inl" />
-    <None Include="src\ndb\CNdbThreadWorker.inl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\doc\NdbClassHierarchy.txt" />
