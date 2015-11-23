@@ -10,7 +10,7 @@ private:
 	std::vector<CNdbThreadWorker*> m_vecWorker;
 
 private:
-	bool Release();
+	void Release();
 
 	bool CreateAllThread(CNdbClusterConnection& _NdbClusterConnection,
 		CNdbThreadContextImplBuilder& _ImplBuilder,
@@ -18,6 +18,7 @@ private:
 	bool DestroyAllThread();
 
 	bool CheckAllThreadState(const EThreadState _ThreadState) const;
+
 public:
 	~CNdbThreadManager();
 	bool Init(CNdbClusterConnection& _NdbClusterConnection,

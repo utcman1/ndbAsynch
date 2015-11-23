@@ -61,14 +61,11 @@ bool CNdbThreadWorker::DestroyThread()
 	return true;
 }
 
-bool CNdbThreadWorker::Release()
+void CNdbThreadWorker::Release()
 {
 	LOG_NDB_FUNCTION();
 
-	if (!CNdbThreadWorker::DestroyThread())
-		return false;
-
-	return true;
+	CNdbThreadWorker::DestroyThread();
 }
 
 

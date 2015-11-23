@@ -16,9 +16,6 @@
     <Filter Include="src\notusing">
       <UniqueIdentifier>{1d2b6e0e-d8ad-4749-8dd7-18751267c8fc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\doc">
-      <UniqueIdentifier>{50ec6952-7692-46f9-aefd-da0bec1d923c}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\compat.hpp">
@@ -143,16 +140,5 @@
     <None Include="src\ndb\CNdbRecordSpec.inl">
       <Filter>src\ndb</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="src\doc\ToDo.txt">
-      <Filter>src\doc</Filter>
-    </Text>
-    <Text Include="src\doc\NdbClassHierarchy.txt">
-      <Filter>src\doc</Filter>
-    </Text>
-    <Text Include="src\doc\코드 가이드.txt">
-      <Filter>src\doc</Filter>
-    </Text>
   </ItemGroup>
 </Project>

@@ -19,7 +19,7 @@ private:
 	bool CreateImpl(CNdbThreadContextImplBuilder& _ImplBuilder);
 	bool DestroyImpl();
 
-	bool Release();
+	void Release();
 
 public:
 	CNdbThreadContext(CNdbClusterConnection& _NdbClusterConnection);

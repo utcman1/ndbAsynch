@@ -15,7 +15,7 @@ private:
 	bool CreateThread();
 	bool DestroyThread();
 
-	bool Release();
+	void Release();
 
 public:
 	CNdbThreadWorker(CNdbClusterConnection& _NdbClusterConnection);

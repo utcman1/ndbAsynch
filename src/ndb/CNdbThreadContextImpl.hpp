@@ -1,6 +1,8 @@
 ﻿class CNdbThreadContextImpl
 {
 public:
+	virtual ~CNdbThreadContextImpl() {}
+
 	// OnCreate(), OnDestroy() 함수는 1번만 불리는게 보장된다.
 	virtual void OnCreate() = 0;	// worker 생성후 호출됨
 	virtual void OnIdle() = 0;		// Idle 상태에서 update될때 호출됨
@@ -15,5 +17,6 @@ class CNdbThreadContext;
 class CNdbThreadContextImplBuilder
 {
 public:
+	virtual ~CNdbThreadContextImplBuilder() {}
 	virtual CNdbThreadContextImpl* Create(CNdbThreadContext* _pContext) = 0;
 };

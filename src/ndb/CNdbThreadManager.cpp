@@ -7,17 +7,12 @@
 
 
 
-bool CNdbThreadManager::Release()
+void CNdbThreadManager::Release()
 {
 	LOG_NDB_FUNCTION();
 
-	if (!CNdbThreadManager::WaitAllThreadState(ETS_Closed))
-		return false;
-
-	if (!CNdbThreadManager::DestroyAllThread())
-		return false;
-
-	return true;
+	CNdbThreadManager::WaitAllThreadState(ETS_Closed);
+	CNdbThreadManager::DestroyAllThread();
 }
 
 bool CNdbThreadManager::CreateAllThread(

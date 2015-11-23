@@ -55,17 +55,12 @@ bool CNdbThreadContext::DestroyImpl()
 	return true;
 }
 
-bool CNdbThreadContext::Release()
+void CNdbThreadContext::Release()
 {
 	LOG_NDB_FUNCTION();
 
-	if (!CNdbThreadContext::DestroyImpl())
-		return false;
-
-	if (!CNdbThreadContext::DestroyNdbPool())
-		return false;
-
-	return true;
+	CNdbThreadContext::DestroyImpl();
+	CNdbThreadContext::DestroyNdbPool();
 }
 
 

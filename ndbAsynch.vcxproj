@@ -60,11 +60,6 @@
     <None Include="Makefile" />
     <None Include="src\ndb\CNdbRecordSpec.inl" />
   </ItemGroup>
-  <ItemGroup>
-    <Text Include="src\doc\NdbClassHierarchy.txt" />
-    <Text Include="src\doc\코드 가이드.txt" />
-    <Text Include="src\doc\ToDo.txt" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C3256B30-9C51-4ACE-BA26-720D2887271D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>

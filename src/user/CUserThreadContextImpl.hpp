@@ -11,6 +11,7 @@ private:
 public:
 	CUserThreadContextImpl(CNdbThreadContext* _pContext)
 		: m_pContext(_pContext) {}
+	virtual ~CUserThreadContextImpl() {}
 
 	virtual void OnCreate();
 	virtual void OnIdle();
