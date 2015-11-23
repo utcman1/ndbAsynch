@@ -65,7 +65,7 @@ bool CUserRecordPool::InitRecordPool()
 {
 	LOG_USER_FUNCTION();
 
-	m_vecRecordPool.resize(256);
+	m_vecRecordPool.resize(MaxTransactionPerNdb);
 
 	for (size_t i = 0; m_vecRecordPool.capacity() > i; ++i)
 	{

@@ -23,7 +23,8 @@ int main()
 		return -1;
 
 	CNdbThreadManager NdbThreadManager;
-	if (!NdbThreadManager.Init(NdbClusterConnection, CUserThreadContextImplBuilder()))
+	CUserThreadContextImplBuilder ImplBuilder;
+	if (!NdbThreadManager.Init(NdbClusterConnection, ImplBuilder))
 		return -1;
 
 	NdbThreadManager.TransitIdleToRun();
