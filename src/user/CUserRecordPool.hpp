@@ -12,12 +12,13 @@ private:
 	std::stack<CTestRecord*>	m_stackFreeRecordPool;
 
 private:
-	static void UserAsynchCallback(int _Result, NdbTransaction* _pTran, void* _pRecord);
+	static void UserAsynchCallback(
+		int _Result, NdbTransaction* _pTran, void* _pRecord);
 
 private:
 	bool InitNdbDatabse();
 	bool InitRecordSpec();
-	bool InitRecordPool();
+	bool InitRecordPool(const int _RecordPerRecordPool);
 
 	CTestRecord* AllocRecord();
 	bool FreeRecord(CTestRecord* _pRecord);
@@ -27,7 +28,7 @@ private:
 
 public:
 	CUserRecordPool(CNdbClusterConnection& _NdbClusterConnection);
-	bool Init();
+	bool Init(const int _RecordPerRecordPool = RecordPerRecordPool);
 
 	int EnqueLoop();
 

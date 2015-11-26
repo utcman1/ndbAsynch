@@ -8,13 +8,14 @@
 
 bool CNdbThreadManager::CreateAllThread(
 	CNdbClusterConnection& _NdbClusterConnection,
-	CNdbThreadContextBuilder& _Builder, const int _MaxThreadWorker)
+	CNdbThreadContextBuilder& _Builder,
+	const int _ThreadWorkerPerThreadManager)
 {
 	LOG_NDB_FUNCTION();
 
-	m_vecWorker.reserve(_MaxThreadWorker);
+	m_vecWorker.reserve(_ThreadWorkerPerThreadManager);
 
-	for (int i = 0; _MaxThreadWorker > i; ++i)
+	for (int i = 0; _ThreadWorkerPerThreadManager > i; ++i)
 	{
 		CNdbThreadWorker* pWorker =
 			new CNdbThreadWorker();
@@ -53,7 +54,8 @@ void CNdbThreadManager::Release()
 	CNdbThreadManager::DestroyAllThread();
 }
 
-bool CNdbThreadManager::CheckAllThreadState(const EThreadState _ThreadState) const
+bool CNdbThreadManager::CheckAllThreadState(
+	const EThreadState _ThreadState) const
 {
 	for (auto pWorker : m_vecWorker)
 	{
@@ -72,12 +74,13 @@ CNdbThreadManager::~CNdbThreadManager()
 }
 
 bool CNdbThreadManager::Init(CNdbClusterConnection& _NdbClusterConnection,
-	CNdbThreadContextBuilder& _Builder, const int _MaxThreadWorker)
+	CNdbThreadContextBuilder& _Builder,
+	const int _ThreadWorkerPerThreadManager)
 {
 	LOG_NDB_FUNCTION();
 
 	if (!CNdbThreadManager::CreateAllThread(
-		_NdbClusterConnection, _Builder, _MaxThreadWorker))
+		_NdbClusterConnection, _Builder, _ThreadWorkerPerThreadManager))
 		return false;
 
 	if (!CNdbThreadManager::WaitAllThreadState(ETS_Idle))

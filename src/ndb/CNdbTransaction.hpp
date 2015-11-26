@@ -27,6 +27,8 @@ const NdbOperation* CNdbTransaction::ReadTuple(
 	const CNdbRecordSpec<TData>& _DataRecordSpec, TData& _DataValue)
 {
 	return NdbTransaction::readTuple(
-		_KeyRecordSpec.GetNdbRecordPtr(), reinterpret_cast<const char*>(&_KeyValue),
-		_DataRecordSpec.GetNdbRecordPtr(), reinterpret_cast<char*>(&_DataValue));
+		_KeyRecordSpec.GetNdbRecordPtr(),
+		reinterpret_cast<const char*>(&_KeyValue),
+		_DataRecordSpec.GetNdbRecordPtr(),
+		reinterpret_cast<char*>(&_DataValue));
 }

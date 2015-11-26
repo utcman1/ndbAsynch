@@ -52,11 +52,11 @@ bool CUserRecordPool::InitRecordSpec()
 	return true;
 }
 
-bool CUserRecordPool::InitRecordPool()
+bool CUserRecordPool::InitRecordPool(const int _RecordPerRecordPool)
 {
 	LOG_USER_FUNCTION();
 
-	m_vecRecordPool.resize(MaxRecordPoolSize);
+	m_vecRecordPool.resize(_RecordPerRecordPool);
 
 	for (size_t i = 0; m_vecRecordPool.capacity() > i; ++i)
 	{
@@ -155,16 +155,17 @@ bool CUserRecordPool::DequeTran(CTestRecord* _pRecord)
 
 
 CUserRecordPool::CUserRecordPool(CNdbClusterConnection& _NdbClusterConnection)
-	: CNdb(_NdbClusterConnection), m_KeyRecordSpec(*this), m_DataRecordSpec(*this)
+	: CNdb(_NdbClusterConnection),
+	m_KeyRecordSpec(*this), m_DataRecordSpec(*this)
 {
 	LOG_USER_FUNCTION();
 }
 
-bool CUserRecordPool::Init()
+bool CUserRecordPool::Init(const int _RecordPerRecordPool)
 {
 	LOG_USER_FUNCTION();
 
-	if (!CNdb::Init())
+	if (!CNdb::Init(_RecordPerRecordPool))
 		return false;
 
 	if (!CUserRecordPool::InitNdbDatabse())
@@ -173,7 +174,7 @@ bool CUserRecordPool::Init()
 	if (!CUserRecordPool::InitRecordSpec())
 		return false;
 
-	if (!CUserRecordPool::InitRecordPool())
+	if (!CUserRecordPool::InitRecordPool(_RecordPerRecordPool))
 		return false;
 
 	return true;

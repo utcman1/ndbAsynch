@@ -20,7 +20,8 @@ void* CNdbThreadWorker::StaticMain(void* _param)
 
 
 
-bool CNdbThreadWorker::CreateContext(CNdbClusterConnection& _NdbClusterConnection,
+bool CNdbThreadWorker::CreateContext(
+	CNdbClusterConnection& _NdbClusterConnection,
 	CNdbThreadContextBuilder& _Builder)
 {
 	LOG_NDB_FUNCTION();

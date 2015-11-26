@@ -29,7 +29,8 @@ bool CNdbRecordSpec<CTestKey>::Init()
 	RecSpec.nullbit_bit_in_byte = 0;
 	RecSpec.column_flags = 0;
 
-	m_pRecord = USER_CALL_FUNCTION(pDict->createRecord(pTable, &RecSpec, 1, sizeof(RecSpec)));
+	m_pRecord = USER_CALL_FUNCTION(
+		pDict->createRecord(pTable, &RecSpec, 1, sizeof(RecSpec)));
 	if (nullptr == m_pRecord)
 	{
 		LogUserError << pDict->getNdbError() << endl;
@@ -68,7 +69,8 @@ bool CNdbRecordSpec<CTestData>::Init()
 	RecSpec[1].nullbit_bit_in_byte = 0;
 	RecSpec[1].column_flags = 0;
 
-	m_pRecord = USER_CALL_FUNCTION(pDict->createRecord(pTable, &RecSpec[0], 2, sizeof(RecSpec[0])));
+	m_pRecord = USER_CALL_FUNCTION(
+		pDict->createRecord(pTable, &RecSpec[0], 2, sizeof(RecSpec[0])));
 	if (nullptr == m_pRecord)
 	{
 		LogUserError << pDict->getNdbError() << endl;

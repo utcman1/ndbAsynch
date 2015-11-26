@@ -12,7 +12,7 @@ private:
 private:
 	bool CreateAllThread(CNdbClusterConnection& _NdbClusterConnection,
 		CNdbThreadContextBuilder& _Builder,
-		const int _MaxThreadWorker = MaxThreadWorker);
+		const int _ThreadWorkerPerThreadManager);
 	bool DestroyAllThread();
 
 	void Release();
@@ -23,7 +23,7 @@ public:
 	~CNdbThreadManager();
 	bool Init(CNdbClusterConnection& _NdbClusterConnection,
 		CNdbThreadContextBuilder& _Builder,
-		const int _MaxThreadWorker = MaxThreadWorker);
+		const int _ThreadWorkerPerThreadManager = ThreadWorkerPerThreadManager);
 
 	bool WaitAllThreadState(
 		const EThreadState _ThreadState, const int _TimeOutSec = 30) const;

@@ -5,14 +5,16 @@
 
 
 
-CNdbClusterConnection::CNdbClusterConnection(const CNdbInit&, const int _NodeID)
-	: Ndb_cluster_connection(CMysqlConfig::Get("server", "ndb-connectstring").c_str(), _NodeID)
+CNdbClusterConnection::CNdbClusterConnection(
+	const CNdbInit&, const int _NodeID)
+	: Ndb_cluster_connection(
+		CMysqlConfig::Get("server", "ndb-connectstring").c_str(), _NodeID)
 {
 	LOG_NDB_FUNCTION();
 }
 
-CNdbClusterConnection::CNdbClusterConnection(const CNdbInit&, const int _NodeID,
-	const char* _pNdbConnectString)
+CNdbClusterConnection::CNdbClusterConnection(
+	const CNdbInit&, const int _NodeID, const char* _pNdbConnectString)
 	: Ndb_cluster_connection(_pNdbConnectString, _NodeID)
 {
 	LOG_NDB_FUNCTION();

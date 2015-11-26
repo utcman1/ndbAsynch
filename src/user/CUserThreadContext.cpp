@@ -18,11 +18,12 @@ bool CUserThreadContext::CreateRecordPoolVector(
 {
 	LOG_USER_FUNCTION();
 
-	m_pRecordPoolVector.reserve(MaxRecordPoolPerThread);
+	m_pRecordPoolVector.reserve(RecordPoolPerThreadContext);
 
-	for (int i = 0; MaxRecordPoolPerThread > i; ++i)
+	for (int i = 0; RecordPoolPerThreadContext > i; ++i)
 	{
-		CUserRecordPool* pRecordPool = new CUserRecordPool(_NdbClusterConnection);
+		CUserRecordPool* pRecordPool =
+			new CUserRecordPool(_NdbClusterConnection);
 		if (!pRecordPool->Init())
 			return false;
 
@@ -103,13 +104,15 @@ void CUserThreadContext::OnRun()
 	int CompleteTranCount = USER_CALL_FUNCTION(
 		CUserThreadContext::GetRecordPool()->sendPollNdb(3000));
 
-	//LogUserWarning << "Enqueue [" << EnqueueTranCount << "] / Complete [" << CompleteTranCount << "] Transactions" << endl;
+	//LogUserWarning << "Enqueue [" << EnqueueTranCount << "] / Complete ["
+	//	<< CompleteTranCount << "] Transactions" << endl;
 
 	TotalCompleteTranCount += CompleteTranCount;
 	if (TotalCompleteTranCount >= NextPrintTranCount)
 	{
 		NextPrintTranCount += PrintTranStep;
-		LogUserWarning << "TotalCompleteTranCount : " << TotalCompleteTranCount << endl;
+		LogUserWarning << "TotalCompleteTranCount : "
+			<< TotalCompleteTranCount << endl;
 	}
 
 	//if (100000 < TotalCompleteTranCount)
