@@ -30,8 +30,8 @@ public:
 	CUserRecordPool(CNdbClusterConnection& _NdbClusterConnection);
 	bool Init(const int _RecordPerRecordPool = RecordPerRecordPool);
 
-	int EnqueLoop();
-
+	int PrepareTransactions();
 	// CUserThreadContext에서 호출할 함수
-	using Ndb::sendPollNdb;
+	using Ndb::sendPreparedTransactions;
+	using Ndb::pollNdb;
 };

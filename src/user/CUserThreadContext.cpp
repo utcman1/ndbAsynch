@@ -77,11 +77,6 @@ bool CUserThreadContext::Init(CNdbClusterConnection& _NdbClusterConnection)
 	return true;
 }
 
-CUserRecordPool* CUserThreadContext::GetRecordPool()
-{
-	return m_pRecordPoolVector[0];
-}
-
 void CUserThreadContext::OnCreate()
 {
 	LOG_USER_FUNCTION();
@@ -100,19 +95,29 @@ void CUserThreadContext::OnRun()
 	static int PrintTranStep = 100000;
 	static int NextPrintTranCount = PrintTranStep;
 
-	int EnqueueTranCount = CUserThreadContext::GetRecordPool()->EnqueLoop();
-	int CompleteTranCount = USER_CALL_FUNCTION(
-		CUserThreadContext::GetRecordPool()->sendPollNdb(3000));
-
-	//LogUserWarning << "Enqueue [" << EnqueueTranCount << "] / Complete ["
-	//	<< CompleteTranCount << "] Transactions" << endl;
-
-	TotalCompleteTranCount += CompleteTranCount;
-	if (TotalCompleteTranCount >= NextPrintTranCount)
+	bool firstRecordPool = true;
+	for(auto pRecordPool : m_pRecordPoolVector)
 	{
-		NextPrintTranCount += PrintTranStep;
-		LogUserWarning << "TotalCompleteTranCount : "
-			<< TotalCompleteTranCount << endl;
+		// waitTime은 첫번째 RecordPool에서만 적용한다.
+		int waitTime = firstRecordPool ? 1 : 0;
+		firstRecordPool = false;
+
+		int CompleteTranCount = USER_CALL_FUNCTION(pRecordPool->pollNdb(waitTime));
+		int EnqueueTranCount = USER_CALL_FUNCTION(pRecordPool->PrepareTransactions());
+		USER_CALL_FUNCTION(pRecordPool->sendPreparedTransactions());
+
+		//LogUserWarning
+		//	<< "Complete [" << CompleteTranCount
+		//	<< "] / Enqueue [" << EnqueueTranCount
+		//	<< "] Transactions" << endl;
+
+		TotalCompleteTranCount += CompleteTranCount;
+		if (TotalCompleteTranCount >= NextPrintTranCount)
+		{
+			NextPrintTranCount += PrintTranStep;
+			LogUserWarning << "TotalCompleteTranCount : "
+				<< TotalCompleteTranCount << endl;
+		}
 	}
 
 	//if (100000 < TotalCompleteTranCount)

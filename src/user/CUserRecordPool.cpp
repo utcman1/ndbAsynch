@@ -180,7 +180,7 @@ bool CUserRecordPool::Init(const int _RecordPerRecordPool)
 	return true;
 }
 
-int CUserRecordPool::EnqueLoop()
+int CUserRecordPool::PrepareTransactions()
 {
 	LOG_USER_FUNCTION();
 	static int idx = 1;

@@ -19,7 +19,6 @@ public:
 	CUserThreadContext();
 	virtual ~CUserThreadContext();
 	virtual bool Init(CNdbClusterConnection& _NdbClusterConnection);
-	CUserRecordPool* GetRecordPool();
 
 	virtual void OnCreate();
 	virtual void OnIdle();
