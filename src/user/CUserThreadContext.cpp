@@ -7,6 +7,7 @@
 // for CUserRecordPool
 #include <ndb/CNdb.hpp>
 #include <ndb/CNdbRecordSpec.hpp>
+#include <ndb/CNdbRecordSpec.inl>
 #include <user/CUserRecord.hpp>
 #include <user/CUserRecordPool.hpp>
 
