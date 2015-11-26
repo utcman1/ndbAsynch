@@ -1,36 +1,23 @@
 ﻿class CNdbClusterConnection;
-class CNdb;
-class CNdbThreadContextImplBuilder;
-class CNdbThreadContextImpl;
-
-
-
 class CNdbThreadContext
 {
-private:
-	CNdbClusterConnection& m_NdbClusterConnection;
-	CNdb* m_pArrNdb[MaxNdbPerThread];
-	CNdbThreadContextImpl* m_pImpl = nullptr;
-
-private:
-	bool CreateNdbPool();
-	bool DestroyNdbPool();
-
-	bool CreateImpl(CNdbThreadContextImplBuilder& _ImplBuilder);
-	bool DestroyImpl();
-
-	void Release();
-
 public:
-	CNdbThreadContext(CNdbClusterConnection& _NdbClusterConnection);
-	~CNdbThreadContext();
-	bool Init(CNdbThreadContextImplBuilder& _ImplBuilder);
-	CNdb* GetNdb() { return m_pArrNdb[0]; }
+	virtual ~CNdbThreadContext() {}
+	virtual bool Init(CNdbClusterConnection& _NdbClusterConnection) = 0;
 
+	// OnCreate(), OnDestroy() 함수는 1번만 불리는게 보장된다.
+	virtual void OnCreate() = 0;	// worker 생성후 호출됨
+	virtual void OnIdle() = 0;		// Idle 상태에서 update될때 호출됨
+	virtual void OnRun() = 0;		// Run 상태에서 update될때 호출됨
+	virtual void OnClosing() = 0;	// Closing 상태에서 update될때 호출됨. 처리가 완료되면 ETS_Destroy로 상태를 바꿔줘야 한다.
+	virtual void OnDestroy() = 0;	// worker 파괴되기 전 호출됨
+};
+
+
+
+class CNdbThreadContextBuilder
+{
 public:
-	void OnCreate();
-	void OnIdle();
-	void OnRun();
-	void OnClosing();
-	void OnDestroy();
+	virtual ~CNdbThreadContextBuilder() {}
+	virtual CNdbThreadContext* Create() = 0;
 };

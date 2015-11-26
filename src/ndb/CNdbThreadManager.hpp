@@ -1,6 +1,6 @@
 ﻿class CNdbClusterConnection;
 class CNdbThreadWorker;
-class CNdbThreadContextImplBuilder;
+class CNdbThreadContextBuilder;
 
 
 
@@ -10,19 +10,19 @@ private:
 	std::vector<CNdbThreadWorker*> m_vecWorker;
 
 private:
-	void Release();
-
 	bool CreateAllThread(CNdbClusterConnection& _NdbClusterConnection,
-		CNdbThreadContextImplBuilder& _ImplBuilder,
+		CNdbThreadContextBuilder& _Builder,
 		const int _MaxThreadWorker = MaxThreadWorker);
 	bool DestroyAllThread();
+
+	void Release();
 
 	bool CheckAllThreadState(const EThreadState _ThreadState) const;
 
 public:
 	~CNdbThreadManager();
 	bool Init(CNdbClusterConnection& _NdbClusterConnection,
-		CNdbThreadContextImplBuilder& _ImplBuilder,
+		CNdbThreadContextBuilder& _Builder,
 		const int _MaxThreadWorker = MaxThreadWorker);
 
 	bool WaitAllThreadState(

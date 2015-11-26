@@ -2,12 +2,10 @@
 #include <ndb/CNdbInit.hpp>
 #include <ndb/CNdbClusterConnection.hpp>
 #include <ndb/CNdbThreadState.hpp>
-#include <ndb/CNdbThreadContext.hpp>
-#include <ndb/CNdbThreadWorker.hpp>
 #include <ndb/CNdbThreadManager.hpp>
 
-#include <ndb/CNdbThreadContextImpl.hpp>
-#include <user/CUserThreadContextImplBuilder.hpp>
+#include <ndb/CNdbThreadContext.hpp>
+#include <user/CUserThreadContext.hpp>
 
 
 
@@ -23,8 +21,8 @@ int main()
 		return -1;
 
 	CNdbThreadManager NdbThreadManager;
-	CUserThreadContextImplBuilder ImplBuilder;
-	if (!NdbThreadManager.Init(NdbClusterConnection, ImplBuilder))
+	CUserThreadContextBuilder ContextBuilder;
+	if (!NdbThreadManager.Init(NdbClusterConnection, ContextBuilder))
 		return -1;
 
 	NdbThreadManager.TransitIdleToRun();

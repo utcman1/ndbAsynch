@@ -1,26 +1,33 @@
 ﻿class CNdbClusterConnection;
-class CNdbThreadContextImplBuilder;
+class CNdbThreadContext;
+class CNdbThreadContextBuilder;
 
 
 
 class CNdbThreadWorker
-	: public CNdbThreadState, public CNdbThreadContext
+	: public CNdbThreadState
 {
 private:
 	NdbThread* m_pThread = nullptr;
+	CNdbThreadContext* m_pContext = nullptr;
 
 private:
 	static void* StaticMain(void* _param);
 
+	bool CreateContext(CNdbClusterConnection& _NdbClusterConnection,
+		CNdbThreadContextBuilder& _Builder);
+	void DestroyContext();
+
 	bool CreateThread();
-	bool DestroyThread();
+	void DestroyThread();
 
 	void Release();
 
 public:
-	CNdbThreadWorker(CNdbClusterConnection& _NdbClusterConnection);
+	CNdbThreadWorker();
 	~CNdbThreadWorker();
-	bool Init(CNdbThreadContextImplBuilder& _ImplBuilder);
+	bool Init(CNdbClusterConnection& _NdbClusterConnection,
+		CNdbThreadContextBuilder& _Builder);
 
 	void* WorkerMain();
 };

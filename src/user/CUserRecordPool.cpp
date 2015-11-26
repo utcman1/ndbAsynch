@@ -22,39 +22,30 @@ void CUserRecordPool::UserAsynchCallback(int _Result,
 
 
 
-bool CUserRecordPool::InitRecordSpec(CNdb& _Ndb)
+bool CUserRecordPool::InitNdbDatabse()
 {
 	LOG_USER_FUNCTION();
 
-	if (0 != USER_CALL_FUNCTION(_Ndb.setDatabaseName("d_ndb_test")))
+	if (0 != USER_CALL_FUNCTION(CNdb::setDatabaseName("d_ndb_test")))
 	{
-		LogUserCritical << _Ndb.getNdbError() << endl;
+		LogUserCritical << CNdb::getNdbError() << endl;
 		return false;
 	}
 
-	m_pKeyRecordSpec = new CNdbRecordSpec<CTestKey>(_Ndb);
-	if (nullptr == m_pKeyRecordSpec)
+	return true;
+}
+
+bool CUserRecordPool::InitRecordSpec()
+{
+	if (!m_KeyRecordSpec.Init())
 	{
-		LogUserCritical << "FAIL : new CNdbRecordSpec<CTestKey>()" << endl;
+		LogUserCritical << CNdb::getNdbError() << endl;
 		return false;
 	}
 
-	m_pDataRecordSpec = new CNdbRecordSpec<CTestData>(_Ndb);
-	if (nullptr == m_pDataRecordSpec)
+	if (!m_DataRecordSpec.Init())
 	{
-		LogUserCritical << "FAIL : new CNdbRecordSpec<CTestData>()" << endl;
-		return false;
-	}
-
-	if (!m_pKeyRecordSpec->Init())
-	{
-		LogUserCritical << _Ndb.getNdbError() << endl;
-		return false;
-	}
-
-	if (!m_pDataRecordSpec->Init())
-	{
-		LogUserCritical << _Ndb.getNdbError() << endl;
+		LogUserCritical << CNdb::getNdbError() << endl;
 		return false;
 	}
 
@@ -65,26 +56,13 @@ bool CUserRecordPool::InitRecordPool()
 {
 	LOG_USER_FUNCTION();
 
-	m_vecRecordPool.resize(MaxTransactionPerNdb);
+	m_vecRecordPool.resize(MaxRecordPoolSize);
 
 	for (size_t i = 0; m_vecRecordPool.capacity() > i; ++i)
 	{
 		m_vecRecordPool[i].pUserRecordPool = this;
 		m_stackFreeRecordPool.push(&m_vecRecordPool[i]);
 	}
-
-	return true;
-}
-
-bool CUserRecordPool::InitOnCreate(CNdb& _Ndb)
-{
-	LOG_USER_FUNCTION();
-
-	if (!InitRecordSpec(_Ndb))
-		return false;
-
-	if (!InitRecordPool())
-		return false;
 
 	return true;
 }
@@ -110,7 +88,7 @@ bool CUserRecordPool::FreeRecord(CTestRecord* _pRecord)
 	return true;
 }
 
-CTestRecord* CUserRecordPool::EnqueTran(CNdb& _Ndb, const int _Num)
+CTestRecord* CUserRecordPool::EnqueTran(const int _Idx)
 {
 	LOG_USER_FUNCTION();
 
@@ -121,17 +99,17 @@ CTestRecord* CUserRecordPool::EnqueTran(CNdb& _Ndb, const int _Num)
 		return nullptr;
 	}
 
-	NdbTransaction* pTran = USER_CALL_FUNCTION(_Ndb.startTransaction());
+	NdbTransaction* pTran = USER_CALL_FUNCTION(CNdb::startTransaction());
 	if (nullptr == pTran)
 	{
-		LogUserError << _Ndb.getNdbError() << endl;
+		LogUserError << CNdb::getNdbError() << endl;
 		CUserRecordPool::FreeRecord(pRecord);
 		return nullptr;
 	}
 
 	// 데이터 설정.
 	pRecord->pTran = pTran;
-	pRecord->Key.a = (_Num%100000) + 1;
+	pRecord->Key.a = (_Idx % MaxDataCount) + 1;
 	//pRecord->Data.a = _Num;
 	//pRecord->Data.b = _Num;
 	pRecord->Data.a = 0;
@@ -144,16 +122,16 @@ CTestRecord* CUserRecordPool::EnqueTran(CNdb& _Ndb, const int _Num)
 	//	m_pDataRecordSpec->GetNdbRecordPtr(),
 	//	reinterpret_cast<const char*>(&(pRecord->Data))));
 	const NdbOperation* pOper = USER_CALL_FUNCTION(pTran->readTuple(
-		m_pKeyRecordSpec->GetNdbRecordPtr(),
+		m_KeyRecordSpec.GetNdbRecordPtr(),
 		reinterpret_cast<const char*>(&(pRecord->Key)),
-		m_pDataRecordSpec->GetNdbRecordPtr(),
+		m_DataRecordSpec.GetNdbRecordPtr(),
 		reinterpret_cast<char*>(&(pRecord->Data))));
 
 	if (nullptr == pOper)
 	{
 		LogUserError << pTran->getNdbError() << endl;
 		FreeRecord(pRecord);
-		_Ndb.closeTransaction(pTran);
+		CNdb::closeTransaction(pTran);
 		return nullptr;
 	}
 
@@ -174,14 +152,41 @@ bool CUserRecordPool::DequeTran(CTestRecord* _pRecord)
 	return true;
 }
 
-int CUserRecordPool::EnqueLoop(CNdb& _Ndb)
+
+
+CUserRecordPool::CUserRecordPool(CNdbClusterConnection& _NdbClusterConnection)
+	: CNdb(_NdbClusterConnection), m_KeyRecordSpec(*this), m_DataRecordSpec(*this)
+{
+	LOG_USER_FUNCTION();
+}
+
+bool CUserRecordPool::Init()
+{
+	LOG_USER_FUNCTION();
+
+	if (!CNdb::Init())
+		return false;
+
+	if (!CUserRecordPool::InitNdbDatabse())
+		return false;
+
+	if (!CUserRecordPool::InitRecordSpec())
+		return false;
+
+	if (!CUserRecordPool::InitRecordPool())
+		return false;
+
+	return true;
+}
+
+int CUserRecordPool::EnqueLoop()
 {
 	LOG_USER_FUNCTION();
 	static int idx = 1;
 
 	int BeginIdx = idx;
 
-	for (; nullptr != EnqueTran(_Ndb, idx); ++idx)
+	for (; nullptr != EnqueTran(idx); ++idx)
 	{
 	}
 

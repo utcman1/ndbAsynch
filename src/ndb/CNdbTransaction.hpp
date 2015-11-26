@@ -1,5 +1,5 @@
 ﻿class CNdbTransaction
-	: public NdbTransaction
+	: protected NdbTransaction
 {
 private:
 	~CNdbTransaction();

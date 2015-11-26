@@ -2,8 +2,9 @@
 #include <util/CLog.hpp>
 #include <ndb/CNdb.hpp>
 #include <ndb/CNdbThreadState.hpp>
-#include <ndb/CNdbThreadContext.hpp>
 #include <ndb/CNdbThreadWorker.hpp>
+
+#include <ndb/CNdbThreadContext.hpp>
 
 
 
@@ -18,6 +19,28 @@ void* CNdbThreadWorker::StaticMain(void* _param)
 }
 
 
+
+bool CNdbThreadWorker::CreateContext(CNdbClusterConnection& _NdbClusterConnection,
+	CNdbThreadContextBuilder& _Builder)
+{
+	LOG_NDB_FUNCTION();
+
+	assert(nullptr == m_pContext);
+	m_pContext = _Builder.Create();
+
+	if (nullptr == m_pContext)
+		return false;
+
+	return m_pContext->Init(_NdbClusterConnection);
+}
+
+void CNdbThreadWorker::DestroyContext()
+{
+	LOG_NDB_FUNCTION();
+
+	delete m_pContext;
+	m_pContext = nullptr;
+}
 
 bool CNdbThreadWorker::CreateThread()
 {
@@ -40,25 +63,23 @@ bool CNdbThreadWorker::CreateThread()
 	return true;
 }
 
-bool CNdbThreadWorker::DestroyThread()
+void CNdbThreadWorker::DestroyThread()
 {
 	LOG_NDB_FUNCTION();
 
 	assert(ETS_Closed == CNdbThreadState::GetState());
 
 	if (nullptr == m_pThread)
-		return true;
+		return;
 
 	void* threadStatus = nullptr;
 	if (0 != NDB_CALL_FUNCTION(NdbThread_WaitFor(m_pThread, &threadStatus)))
 	{
 		LogNdbCritical << "FAIL : NdbThread_WaitFor()" << endl;
-		return false;
+		return;
 	}
 
 	NDB_CALL_FUNCTION(NdbThread_Destroy(&m_pThread));
-
-	return true;
 }
 
 void CNdbThreadWorker::Release()
@@ -66,13 +87,12 @@ void CNdbThreadWorker::Release()
 	LOG_NDB_FUNCTION();
 
 	CNdbThreadWorker::DestroyThread();
+	CNdbThreadWorker::DestroyContext();
 }
 
 
 
-CNdbThreadWorker::CNdbThreadWorker(
-	CNdbClusterConnection& _NdbClusterConnection)
-	: CNdbThreadContext(_NdbClusterConnection)
+CNdbThreadWorker::CNdbThreadWorker()
 {
 	LOG_NDB_FUNCTION();
 }
@@ -84,13 +104,14 @@ CNdbThreadWorker::~CNdbThreadWorker()
 	CNdbThreadWorker::Release();
 }
 
-bool CNdbThreadWorker::Init(CNdbThreadContextImplBuilder& _ImplBuilder)
+bool CNdbThreadWorker::Init(CNdbClusterConnection& _NdbClusterConnection,
+	CNdbThreadContextBuilder& _Builder)
 {
 	LOG_NDB_FUNCTION();
 
 	assert(ETS_Invalid == CNdbThreadState::GetState());
 
-	if (!CNdbThreadContext::Init(_ImplBuilder))
+	if (!CNdbThreadWorker::CreateContext(_NdbClusterConnection, _Builder))
 		return false;
 
 	if (!CNdbThreadWorker::CreateThread())
@@ -110,24 +131,24 @@ void* CNdbThreadWorker::WorkerMain()
 		switch (CNdbThreadState::GetState())
 		{
 		case ETS_Create:
-			CNdbThreadContext::OnCreate();
+			m_pContext->OnCreate();
 			CNdbThreadState::TransitCreateToIdle();
 			break;
 
 		case ETS_Idle:
-			CNdbThreadContext::OnIdle();
+			m_pContext->OnIdle();
 			break;
 
 		case ETS_Run:
-			CNdbThreadContext::OnRun();
+			m_pContext->OnRun();
 			break;
 
 		case ETS_Closing:
-			CNdbThreadContext::OnClosing();
+			m_pContext->OnClosing();
 			break;
 
 		case ETS_Destroy:
-			CNdbThreadContext::OnDestroy();
+			m_pContext->OnDestroy();
 			CNdbThreadState::TransitDestroyToClosed();
 			bContinue = false;
 			break;

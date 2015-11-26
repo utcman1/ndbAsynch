@@ -10,6 +10,7 @@ struct CTestData
 };
 
 
+class NdbTransaction;
 class CUserRecordPool;
 struct CTestRecord
 {

@@ -1,23 +1,14 @@
 ﻿#include <stdafx.hpp>
 #include <util/CLog.hpp>
 #include <ndb/CNdbThreadState.hpp>
-#include <ndb/CNdbThreadContext.hpp>
 #include <ndb/CNdbThreadWorker.hpp>
 #include <ndb/CNdbThreadManager.hpp>
 
 
 
-void CNdbThreadManager::Release()
-{
-	LOG_NDB_FUNCTION();
-
-	CNdbThreadManager::WaitAllThreadState(ETS_Closed);
-	CNdbThreadManager::DestroyAllThread();
-}
-
 bool CNdbThreadManager::CreateAllThread(
 	CNdbClusterConnection& _NdbClusterConnection,
-	CNdbThreadContextImplBuilder& _ImplBuilder, const int _MaxThreadWorker)
+	CNdbThreadContextBuilder& _Builder, const int _MaxThreadWorker)
 {
 	LOG_NDB_FUNCTION();
 
@@ -26,10 +17,10 @@ bool CNdbThreadManager::CreateAllThread(
 	for (int i = 0; _MaxThreadWorker > i; ++i)
 	{
 		CNdbThreadWorker* pWorker =
-			new CNdbThreadWorker(_NdbClusterConnection);
+			new CNdbThreadWorker();
 		assert(nullptr != pWorker);
 
-		if (!pWorker->Init(_ImplBuilder))
+		if (!pWorker->Init(_NdbClusterConnection, _Builder))
 		{
 			return false;
 		}
@@ -54,6 +45,14 @@ bool CNdbThreadManager::DestroyAllThread()
 	return true;
 }
 
+void CNdbThreadManager::Release()
+{
+	LOG_NDB_FUNCTION();
+
+	CNdbThreadManager::WaitAllThreadState(ETS_Closed);
+	CNdbThreadManager::DestroyAllThread();
+}
+
 bool CNdbThreadManager::CheckAllThreadState(const EThreadState _ThreadState) const
 {
 	for (auto pWorker : m_vecWorker)
@@ -73,12 +72,12 @@ CNdbThreadManager::~CNdbThreadManager()
 }
 
 bool CNdbThreadManager::Init(CNdbClusterConnection& _NdbClusterConnection,
-	CNdbThreadContextImplBuilder& _ImplBuilder, const int _MaxThreadWorker)
+	CNdbThreadContextBuilder& _Builder, const int _MaxThreadWorker)
 {
 	LOG_NDB_FUNCTION();
 
 	if (!CNdbThreadManager::CreateAllThread(
-		_NdbClusterConnection, _ImplBuilder, _MaxThreadWorker))
+		_NdbClusterConnection, _Builder, _MaxThreadWorker))
 		return false;
 
 	if (!CNdbThreadManager::WaitAllThreadState(ETS_Idle))
