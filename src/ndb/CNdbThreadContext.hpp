@@ -15,9 +15,10 @@ public:
 
 
 
+class CNdbThreadState;
 class CNdbThreadContextBuilder
 {
 public:
 	virtual ~CNdbThreadContextBuilder() {}
-	virtual CNdbThreadContext* Create() = 0;
+	virtual CNdbThreadContext* Create(CNdbThreadState& _NdbThreadState) = 0;
 };

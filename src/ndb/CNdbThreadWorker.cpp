@@ -27,7 +27,7 @@ bool CNdbThreadWorker::CreateContext(
 	LOG_NDB_FUNCTION();
 
 	assert(nullptr == m_pContext);
-	m_pContext = _Builder.Create();
+	m_pContext = _Builder.Create(*this);
 
 	if (nullptr == m_pContext)
 		return false;

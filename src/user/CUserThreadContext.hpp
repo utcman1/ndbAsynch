@@ -7,6 +7,7 @@ class CUserThreadContext
 	: public CNdbThreadContext
 {
 private:
+	CNdbThreadState& m_NdbThreadState;
 	std::vector<CUserRecordPool*> m_pRecordPoolVector;
 
 private:
@@ -16,7 +17,7 @@ private:
 	void Release();
 
 public:
-	CUserThreadContext();
+	CUserThreadContext(CNdbThreadState& _NdbThreadState);
 	virtual ~CUserThreadContext();
 	virtual bool Init(CNdbClusterConnection& _NdbClusterConnection);
 
@@ -34,5 +35,5 @@ class CUserThreadContextBuilder
 {
 public:
 	virtual ~CUserThreadContextBuilder() {}
-	virtual CNdbThreadContext* Create();
+	virtual CNdbThreadContext* Create(CNdbThreadState& _NdbThreadState);
 };

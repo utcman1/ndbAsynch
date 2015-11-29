@@ -1,6 +1,7 @@
 ﻿#include <stdafx.hpp>
 #include <util/CLog.hpp>
 #include <ndb/CNdbClusterConnection.hpp>
+#include <ndb/CNdbThreadState.hpp>
 #include <ndb/CNdbThreadContext.hpp>
 #include <user/CUserThreadContext.hpp>
 
@@ -55,7 +56,8 @@ void CUserThreadContext::Release()
 
 
 
-CUserThreadContext::CUserThreadContext()
+CUserThreadContext::CUserThreadContext(CNdbThreadState& _NdbThreadState)
+	: m_NdbThreadState(_NdbThreadState)
 {
 	LOG_USER_FUNCTION();
 }
@@ -120,18 +122,18 @@ void CUserThreadContext::OnRun()
 		}
 	}
 
-	//if (100000 < TotalCompleteTranCount)
-	//{
-	//	LogUserWarning << "TransitRunToClosing()" << endl;
-	//	CNdbThreadState<CUserThreadState>::TransitRunToClosing();
-	//}
+	if (1000000 < TotalCompleteTranCount)
+	{
+		LogUserWarning << "TransitRunToClosing()" << endl;
+		m_NdbThreadState.TransitRunToClosing();
+	}
 }
 
 void CUserThreadContext::OnClosing()
 {
 	LOG_USER_FUNCTION();
 
-	//CNdbThreadState<CUserThreadState>::TransitClosingToDestroy();
+	m_NdbThreadState.TransitClosingToDestroy();
 }
 
 void CUserThreadContext::OnDestroy()
@@ -141,9 +143,10 @@ void CUserThreadContext::OnDestroy()
 
 
 
-CNdbThreadContext* CUserThreadContextBuilder::Create()
+CNdbThreadContext* CUserThreadContextBuilder::Create(
+	CNdbThreadState& _NdbThreadState)
 {
 	LOG_USER_FUNCTION();
 
-	return new CUserThreadContext();
+	return new CUserThreadContext(_NdbThreadState);
 }
