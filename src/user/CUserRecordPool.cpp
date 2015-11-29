@@ -67,6 +67,18 @@ bool CUserRecordPool::InitRecordPool(const int _RecordPerRecordPool)
 	return true;
 }
 
+bool CUserRecordPool::InitNodeHint()
+{
+	LOG_USER_FUNCTION();
+
+	auto pDict = Ndb::getDictionary();
+	assert(nullptr != pDict);
+
+	m_pTable = USER_CALL_FUNCTION(pDict->getTable("t_ndb_test"));
+
+	return (nullptr != m_pTable);
+}
+
 CTestRecord* CUserRecordPool::AllocRecord()
 {
 	LOG_USER_FUNCTION();
@@ -99,7 +111,14 @@ CTestRecord* CUserRecordPool::EnqueTran(const int _Idx)
 		return nullptr;
 	}
 
-	NdbTransaction* pTran = USER_CALL_FUNCTION(CNdb::startTransaction());
+	Key_part_ptr NodeHint[2];
+	NodeHint[0].ptr = &(pRecord->Key.a);
+	NodeHint[0].len = sizeof(pRecord->Key.a);
+	NodeHint[1].ptr = nullptr;
+	NodeHint[1].len = 0;
+
+	NdbTransaction* pTran = USER_CALL_FUNCTION(CNdb::startTransaction(
+		m_pTable, NodeHint, m_ComputeHashBuffer, sizeof(m_ComputeHashBuffer)));
 	if (nullptr == pTran)
 	{
 		LogUserError << CNdb::getNdbError() << endl;
@@ -175,6 +194,9 @@ bool CUserRecordPool::Init(const int _RecordPerRecordPool)
 		return false;
 
 	if (!CUserRecordPool::InitRecordPool(_RecordPerRecordPool))
+		return false;
+
+	if (!CUserRecordPool::InitNodeHint())
 		return false;
 
 	return true;

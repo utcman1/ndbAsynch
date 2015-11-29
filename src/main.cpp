@@ -26,7 +26,7 @@ int main()
 		return -1;
 
 	NdbThreadManager.TransitIdleToRun();
-	NdbThreadManager.WaitAllThreadState(ETS_Closed);
+	NdbThreadManager.WaitAllThreadState(ETS_Closed, 3600);
 
 	return 0;
 }
