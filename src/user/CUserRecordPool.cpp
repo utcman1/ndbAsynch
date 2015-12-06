@@ -67,7 +67,7 @@ bool CUserRecordPool::InitRecordPool(const int _RecordPerRecordPool)
 	return true;
 }
 
-bool CUserRecordPool::InitNodeHint()
+bool CUserRecordPool::InitNodeHint(const int _PartitionId)
 {
 	LOG_USER_FUNCTION();
 
@@ -75,6 +75,9 @@ bool CUserRecordPool::InitNodeHint()
 	assert(nullptr != pDict);
 
 	m_pTable = USER_CALL_FUNCTION(pDict->getTable("t_ndb_test"));
+
+	assert(-1 == m_PartitionId);
+	m_PartitionId = _PartitionId;
 
 	return (nullptr != m_pTable);
 }
@@ -100,6 +103,69 @@ bool CUserRecordPool::FreeRecord(CTestRecord* _pRecord)
 	return true;
 }
 
+bool CUserRecordPool::DequeTran(CTestRecord* _pRecord)
+{
+	LOG_USER_FUNCTION();
+
+	USER_CALL_FUNCTION(_pRecord->pTran->close());
+
+	if (!CUserRecordPool::FreeRecord(_pRecord))
+		return false;
+
+	return true;
+}
+
+
+
+CUserRecordPool::CUserRecordPool(CNdbClusterConnection& _NdbClusterConnection)
+	: CNdb(_NdbClusterConnection),
+	m_KeyRecordSpec(*this), m_DataRecordSpec(*this)
+{
+	LOG_USER_FUNCTION();
+}
+
+bool CUserRecordPool::Init(const int _PartitionId, const int _RecordPerRecordPool)
+{
+	LOG_USER_FUNCTION();
+
+	if (!CNdb::Init(_RecordPerRecordPool))
+		return false;
+
+	if (!CUserRecordPool::InitNdbDatabse())
+		return false;
+
+	if (!CUserRecordPool::InitRecordSpec())
+		return false;
+
+	if (!CUserRecordPool::InitRecordPool(_RecordPerRecordPool))
+		return false;
+
+	if (!CUserRecordPool::InitNodeHint(_PartitionId))
+		return false;
+
+	return true;
+}
+
+int CUserRecordPool::GetPartitionId(const int _Idx)
+{
+	LOG_USER_FUNCTION();
+
+	CTestKey Key;
+	Key.a = _Idx;
+	Key_part_ptr NodeHint[2];
+	NodeHint[0].ptr = &(Key.a);
+	NodeHint[0].len = sizeof(Key.a);
+	NodeHint[1].ptr = nullptr;
+	NodeHint[1].len = 0;
+
+	Uint32 hash = 0;
+	if (0 != CNdb::computeHash(&hash, m_pTable, NodeHint,
+		m_ComputeHashBuffer, sizeof(m_ComputeHashBuffer)))
+		return -1;
+
+	return m_pTable->getPartitionId(hash);
+}
+
 CTestRecord* CUserRecordPool::EnqueTran(const int _Idx)
 {
 	LOG_USER_FUNCTION();
@@ -111,14 +177,8 @@ CTestRecord* CUserRecordPool::EnqueTran(const int _Idx)
 		return nullptr;
 	}
 
-	Key_part_ptr NodeHint[2];
-	NodeHint[0].ptr = &(pRecord->Key.a);
-	NodeHint[0].len = sizeof(pRecord->Key.a);
-	NodeHint[1].ptr = nullptr;
-	NodeHint[1].len = 0;
-
 	NdbTransaction* pTran = USER_CALL_FUNCTION(CNdb::startTransaction(
-		m_pTable, NodeHint, m_ComputeHashBuffer, sizeof(m_ComputeHashBuffer)));
+		m_pTable, m_PartitionId));
 	if (nullptr == pTran)
 	{
 		LogUserError << CNdb::getNdbError() << endl;
@@ -157,61 +217,4 @@ CTestRecord* CUserRecordPool::EnqueTran(const int _Idx)
 	USER_CALL_FUNCTION(pTran->executeAsynchPrepare(NdbTransaction::Commit,
 		&CUserRecordPool::UserAsynchCallback, pRecord));
 	return pRecord;
-}
-
-bool CUserRecordPool::DequeTran(CTestRecord* _pRecord)
-{
-	LOG_USER_FUNCTION();
-
-	USER_CALL_FUNCTION(_pRecord->pTran->close());
-
-	if (!CUserRecordPool::FreeRecord(_pRecord))
-		return false;
-
-	return true;
-}
-
-
-
-CUserRecordPool::CUserRecordPool(CNdbClusterConnection& _NdbClusterConnection)
-	: CNdb(_NdbClusterConnection),
-	m_KeyRecordSpec(*this), m_DataRecordSpec(*this)
-{
-	LOG_USER_FUNCTION();
-}
-
-bool CUserRecordPool::Init(const int _RecordPerRecordPool)
-{
-	LOG_USER_FUNCTION();
-
-	if (!CNdb::Init(_RecordPerRecordPool))
-		return false;
-
-	if (!CUserRecordPool::InitNdbDatabse())
-		return false;
-
-	if (!CUserRecordPool::InitRecordSpec())
-		return false;
-
-	if (!CUserRecordPool::InitRecordPool(_RecordPerRecordPool))
-		return false;
-
-	if (!CUserRecordPool::InitNodeHint())
-		return false;
-
-	return true;
-}
-
-int CUserRecordPool::PrepareTransactions()
-{
-	LOG_USER_FUNCTION();
-	static int idx = 1;
-
-	int BeginIdx = idx;
-
-	for (; nullptr != EnqueTran(idx); ++idx)
-	{
-	}
-
-	return (idx - BeginIdx);
 }

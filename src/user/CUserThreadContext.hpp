@@ -1,5 +1,4 @@
-﻿class CUserRecordPool;
-class CNdbClusterConnection;
+﻿class CNdbClusterConnection;
 
 
 
@@ -8,12 +7,9 @@ class CUserThreadContext
 {
 private:
 	CNdbThreadState& m_NdbThreadState;
-	std::vector<CUserRecordPool*> m_pRecordPoolVector;
+	CUserRecordPoolManager m_RecordPoolManager;
 
 private:
-	bool CreateRecordPoolVector(CNdbClusterConnection& _NdbClusterConnection);
-	void DestroyRecordPoolVector();
-
 	void Release();
 
 public:
@@ -26,14 +22,4 @@ public:
 	virtual void OnRun();
 	virtual void OnClosing();
 	virtual void OnDestroy();
-};
-
-
-
-class CUserThreadContextBuilder
-	: public CNdbThreadContextBuilder
-{
-public:
-	virtual ~CUserThreadContextBuilder() {}
-	virtual CNdbThreadContext* Create(CNdbThreadState& _NdbThreadState);
 };

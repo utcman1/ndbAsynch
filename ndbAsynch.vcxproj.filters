@@ -60,7 +60,13 @@
     <ClInclude Include="src\user\CUserRecordPool.hpp">
       <Filter>src\user</Filter>
     </ClInclude>
+    <ClInclude Include="src\user\CUserRecordPoolManager.hpp">
+      <Filter>src\user</Filter>
+    </ClInclude>
     <ClInclude Include="src\user\CUserThreadContext.hpp">
+      <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\user\CUserThreadContextBuilder.hpp">
       <Filter>src\user</Filter>
     </ClInclude>
     <ClInclude Include="src\util\CLog.hpp">
@@ -107,7 +113,13 @@
     <ClCompile Include="src\user\CUserRecordPool.cpp">
       <Filter>src\user</Filter>
     </ClCompile>
+    <ClCompile Include="src\user\CUserRecordPoolManager.cpp">
+      <Filter>src\user</Filter>
+    </ClCompile>
     <ClCompile Include="src\user\CUserThreadContext.cpp">
+      <Filter>src\user</Filter>
+    </ClCompile>
+    <ClCompile Include="src\user\CUserThreadContextBuilder.cpp">
       <Filter>src\user</Filter>
     </ClCompile>
     <ClCompile Include="src\util\CLog.cpp">

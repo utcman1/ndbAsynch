@@ -5,7 +5,7 @@
 #include <ndb/CNdbThreadManager.hpp>
 
 #include <ndb/CNdbThreadContext.hpp>
-#include <user/CUserThreadContext.hpp>
+#include <user/CUserThreadContextBuilder.hpp>
 
 
 

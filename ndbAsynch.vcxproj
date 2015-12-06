@@ -25,7 +25,9 @@
     <ClInclude Include="src\ndb\CNdbTransaction.hpp" />
     <ClInclude Include="src\user\CUserRecord.hpp" />
     <ClInclude Include="src\user\CUserRecordPool.hpp" />
+    <ClInclude Include="src\user\CUserRecordPoolManager.hpp" />
     <ClInclude Include="src\user\CUserThreadContext.hpp" />
+    <ClInclude Include="src\user\CUserThreadContextBuilder.hpp" />
     <ClInclude Include="src\util\CLog.hpp" />
     <ClInclude Include="src\util\CMysqlConfig.hpp" />
     <ClInclude Include="src\util\CPopen.hpp" />
@@ -44,7 +46,9 @@
     <ClCompile Include="src\ndb\CNdbTransaction.cpp" />
     <ClCompile Include="src\user\CUserRecord.cpp" />
     <ClCompile Include="src\user\CUserRecordPool.cpp" />
+    <ClCompile Include="src\user\CUserRecordPoolManager.cpp" />
     <ClCompile Include="src\user\CUserThreadContext.cpp" />
+    <ClCompile Include="src\user\CUserThreadContextBuilder.cpp" />
     <ClCompile Include="src\util\CLog.cpp" />
     <ClCompile Include="src\util\CMysqlConfig.cpp" />
     <ClCompile Include="src\util\CPopen.cpp" />
