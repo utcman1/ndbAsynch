@@ -52,16 +52,15 @@ void CUserThreadContext::OnRun()
 {
 	LOG_USER_FUNCTION();
 
-	static int TotalCompleteTranCount = 0;
 	static int TotalPreparedTranCount = 0;
+	static int TotalCompleteTranCount = 0;
 	static int PrintTranStep = 100000;
 	static int NextPrintTranCount = PrintTranStep;
 
+	TotalPreparedTranCount += USER_CALL_FUNCTION(
+		m_RecordPoolManager.PrepareAndSendTran(TotalPreparedTranCount));
 	TotalCompleteTranCount += USER_CALL_FUNCTION(
 		m_RecordPoolManager.CompleteTran());
-	TotalPreparedTranCount += USER_CALL_FUNCTION(
-		m_RecordPoolManager.PrepareTran(TotalPreparedTranCount));
-	USER_CALL_FUNCTION(m_RecordPoolManager.SendTran());
 
 	if (TotalCompleteTranCount >= NextPrintTranCount)
 	{

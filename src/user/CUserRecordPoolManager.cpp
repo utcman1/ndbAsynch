@@ -17,13 +17,13 @@ bool CUserRecordPoolManager::CreateRecordPoolVector(
 {
 	LOG_USER_FUNCTION();
 
-	m_pRecordPoolVector.reserve(NdbPartitionCount);
+	m_pRecordPoolVector.reserve(RecordPoolPerThreadWorker);
 
-	for (int PartId = 0; NdbPartitionCount > PartId; ++PartId)
+	for (int i = 0; RecordPoolPerThreadWorker > i; ++i)
 	{
 		CUserRecordPool* pRecordPool =
 			new CUserRecordPool(_NdbClusterConnection);
-		if (!pRecordPool->Init(PartId))
+		if (!pRecordPool->Init())
 			return false;
 
 		m_pRecordPoolVector.push_back(pRecordPool);
@@ -72,49 +72,36 @@ bool CUserRecordPoolManager::Init(CNdbClusterConnection& _NdbClusterConnection)
 	return true;
 }
 
+int CUserRecordPoolManager::PrepareAndSendTran(const int _IdxBegin)
+{
+	LOG_USER_FUNCTION();
+
+	int Idx = _IdxBegin;
+	for (auto pRecordPool : m_pRecordPoolVector)
+	{
+		for(; nullptr != USER_CALL_FUNCTION(
+			pRecordPool->EnqueTran(Idx)); ++Idx)
+		{
+		}
+
+		USER_CALL_FUNCTION(pRecordPool->sendPreparedTransactions());
+	}
+
+	return Idx - _IdxBegin;
+}
+
 int CUserRecordPoolManager::CompleteTran()
 {
 	LOG_USER_FUNCTION();
 
 	int CompleteTranCount = 0;
-	bool firstRecordPool = true;
 	for (auto pRecordPool : m_pRecordPoolVector)
 	{
-		// waitTime은 첫번째 RecordPool에서만 적용한다.
-		int waitTime = firstRecordPool ? 1 : 0;
-		firstRecordPool = false;
+		int waitTime = 3000;
 
 		CompleteTranCount +=
-			USER_CALL_FUNCTION(pRecordPool->pollNdb(waitTime));
+			USER_CALL_FUNCTION(pRecordPool->pollNdb(waitTime, 0));
 	}
 
 	return CompleteTranCount;
-}
-
-int CUserRecordPoolManager::PrepareTran(const int _IdxBegin)
-{
-	LOG_USER_FUNCTION();
-
-	int idx = _IdxBegin;
-	std::size_t PartitionId = -1;
-
-	do
-	{
-		++idx;
-		PartitionId = m_pRecordPoolVector[0]->GetPartitionId(idx);
-		assert(PartitionId < m_pRecordPoolVector.size());
-	} while (nullptr != USER_CALL_FUNCTION(
-		m_pRecordPoolVector[PartitionId]->EnqueTran(idx)));
-
-	return (idx - _IdxBegin - 1);
-}
-
-void CUserRecordPoolManager::SendTran()
-{
-	LOG_USER_FUNCTION();
-
-	for (auto pRecordPool : m_pRecordPoolVector)
-	{
-		USER_CALL_FUNCTION(pRecordPool->sendPreparedTransactions());
-	}
 }

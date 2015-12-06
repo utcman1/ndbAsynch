@@ -67,7 +67,7 @@ bool CUserRecordPool::InitRecordPool(const int _RecordPerRecordPool)
 	return true;
 }
 
-bool CUserRecordPool::InitNodeHint(const int _PartitionId)
+bool CUserRecordPool::InitNodeHint()
 {
 	LOG_USER_FUNCTION();
 
@@ -75,10 +75,6 @@ bool CUserRecordPool::InitNodeHint(const int _PartitionId)
 	assert(nullptr != pDict);
 
 	m_pTable = USER_CALL_FUNCTION(pDict->getTable("t_ndb_test"));
-
-	assert(-1 == m_PartitionId);
-	m_PartitionId = _PartitionId;
-
 	return (nullptr != m_pTable);
 }
 
@@ -124,7 +120,7 @@ CUserRecordPool::CUserRecordPool(CNdbClusterConnection& _NdbClusterConnection)
 	LOG_USER_FUNCTION();
 }
 
-bool CUserRecordPool::Init(const int _PartitionId, const int _RecordPerRecordPool)
+bool CUserRecordPool::Init(const int _RecordPerRecordPool)
 {
 	LOG_USER_FUNCTION();
 
@@ -140,30 +136,10 @@ bool CUserRecordPool::Init(const int _PartitionId, const int _RecordPerRecordPoo
 	if (!CUserRecordPool::InitRecordPool(_RecordPerRecordPool))
 		return false;
 
-	if (!CUserRecordPool::InitNodeHint(_PartitionId))
+	if (!CUserRecordPool::InitNodeHint())
 		return false;
 
 	return true;
-}
-
-int CUserRecordPool::GetPartitionId(const int _Idx)
-{
-	LOG_USER_FUNCTION();
-
-	CTestKey Key;
-	Key.a = _Idx;
-	Key_part_ptr NodeHint[2];
-	NodeHint[0].ptr = &(Key.a);
-	NodeHint[0].len = sizeof(Key.a);
-	NodeHint[1].ptr = nullptr;
-	NodeHint[1].len = 0;
-
-	Uint32 hash = 0;
-	if (0 != CNdb::computeHash(&hash, m_pTable, NodeHint,
-		m_ComputeHashBuffer, sizeof(m_ComputeHashBuffer)))
-		return -1;
-
-	return m_pTable->getPartitionId(hash);
 }
 
 CTestRecord* CUserRecordPool::EnqueTran(const int _Idx)
@@ -177,8 +153,14 @@ CTestRecord* CUserRecordPool::EnqueTran(const int _Idx)
 		return nullptr;
 	}
 
+	Key_part_ptr NodeHint[2];
+	NodeHint[0].ptr = &(pRecord->Key.a);
+	NodeHint[0].len = sizeof(pRecord->Key.a);
+	NodeHint[1].ptr = nullptr;
+	NodeHint[1].len = 0;
+
 	NdbTransaction* pTran = USER_CALL_FUNCTION(CNdb::startTransaction(
-		m_pTable, m_PartitionId));
+		m_pTable, NodeHint, m_ComputeHashBuffer, sizeof(m_ComputeHashBuffer)));
 	if (nullptr == pTran)
 	{
 		LogUserError << CNdb::getNdbError() << endl;

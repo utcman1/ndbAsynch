@@ -18,7 +18,6 @@ public:
 	~CUserRecordPoolManager();
 	bool Init(CNdbClusterConnection& _NdbClusterConnection);
 
-	int CompleteTran();							// return CompleteTran Count
-	int PrepareTran(const int _IdxBegin);		// return PrepareTran Count
-	void SendTran();
+	int PrepareAndSendTran(const int _IdxBegin);	// return Prepare Count
+	int CompleteTran();								// return Complete Count
 };

@@ -13,7 +13,6 @@ private:
 
 	// node hint를 위한 정보
 	const NdbDictionary::Table*	m_pTable = nullptr;
-	int							m_PartitionId = -1;
 	char						m_ComputeHashBuffer[ComputeHashBufferSize];
 
 private:
@@ -24,7 +23,7 @@ private:
 	bool InitNdbDatabse();
 	bool InitRecordSpec();
 	bool InitRecordPool(const int _RecordPerRecordPool);
-	bool InitNodeHint(const int _PartitionId);
+	bool InitNodeHint();
 
 	CTestRecord* AllocRecord();
 	bool FreeRecord(CTestRecord* _pRecord);
@@ -33,9 +32,8 @@ private:
 
 public:
 	CUserRecordPool(CNdbClusterConnection& _NdbClusterConnection);
-	bool Init(const int _PartitionId, const int _RecordPerRecordPool = RecordPerRecordPool);
+	bool Init(const int _RecordPerRecordPool = RecordPerRecordPool);
 
-	int GetPartitionId(const int _Idx);
 	CTestRecord* EnqueTran(const int _Idx);
 
 	// CUserRecordPoolManager에서 호출할 함수
