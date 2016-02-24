@@ -1,0 +1,15 @@
+#!/bin/bash
+
+ndb_bin=/mysql_cluster/bin
+
+$ndb_bin/ndb start ndb_mgmd 49
+#$ndb_bin/ndb start ndb_mgmd 50
+
+sleep 1
+$ndb_bin/ndb start ndbd 1
+$ndb_bin/ndb start ndbd 2
+#$ndb_bin/ndb start ndbd 3
+#$ndb_bin/ndb start ndbd 4
+
+sleep 1
+ndb_mgm -e 'all start'

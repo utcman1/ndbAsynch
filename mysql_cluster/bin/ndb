@@ -1,0 +1,208 @@
+#!/bin/bash
+
+# chkconfig: 2345 64 36
+# description: ndb start/stop script
+
+### BEGIN INIT INFO
+# Provides:             ndb start/stop
+# Required-Start:       $local_fs $network $remote_fs
+# Required-Stop:        $local_fs $network $remote_fs
+# Default-Start:        2 3 4 5
+# Default-Stop:         0 1 6
+# Short-Description:    ndb start/stop script
+### END INIT INFO
+
+PROGNAME=$2
+NODEID=$3
+BASEDIR=/mysql_cluster
+
+OPTIONS=""
+case "$PROGNAME" in
+  'ndb_mgmd')
+    OPTIONS=" --ndb-nodeid=${NODEID} --initial --skip-config-cache"
+    SUBDIR=$BASEDIR/$PROGNAME;;
+  'ndbd'|'ndbmtd')
+    OPTIONS=" --ndb-nodeid=${NODEID} -n"
+    SUBDIR=$BASEDIR/ndbd;;
+esac
+
+LOGFILE=$SUBDIR/ndb_$NODEID\_start.log
+PIDFILE=$SUBDIR/$PROGNAME$NODEID.pid
+TEE="/usr/bin/tee -a $LOGFILE"
+DATE=`date "+%Y-%m-%d %H:%M:%S"`
+
+LOCKFILE=""
+if [ -d /var/lock/subsys ]; then
+  LOCKFILE=/var/lock/subsys/$PROGNAME$NODEID
+else
+  LOCKFILE=/var/lock/$PROGNAME$NODEID
+fi
+
+CMD="sudo -u mysql /usr/sbin/$PROGNAME $OPTIONS"
+MGM="/usr/bin/ndb_mgm"
+MGMEXECSTR="$NODEID STOP"
+PIDFILE=$SUBDIR/ndb_$NODEID.pid
+PID=`cat "$PIDFILE" 2>/dev/null`
+RETVAL=0
+TIMEOUT=100 # in second
+
+if [ -e /etc/init.d/functions ]; then
+  . /etc/init.d/functions
+else
+  . /lib/lsb/init-functions
+fi
+
+
+
+wait_for_pid () {
+  i=0
+  avoid_race_condition="by checking again"
+
+  while [ $i -ne $TIMEOUT ]; do
+
+    case "$1" in
+      'created')
+        # wait for a PID-file to pop into existence.
+        test -s "$PIDFILE" && i='' && break
+        ;;
+      'removed')
+        # wait for this PID-file to disappear
+        test ! -s "$PIDFILE" && i='' && break
+        ;;
+      *)
+        echo "wait_for_pid () usage: wait_for_pid created|removed"
+        exit 1
+        ;;
+    esac
+
+    # if server isn't running, then pid-file will never be updated
+    if [ -n "$PID" ]; then
+      if kill -0 "$PID" 2>/dev/null; then
+        :  # the server still runs
+      else
+        # The server may have exited between the last pid-file check and now.
+        if [ -n "$avoid_race_condition" ]; then
+          avoid_race_condition=""
+          continue  # Check again.
+        fi
+
+        # there's nothing that will affect the file.
+        echo -e "The server quit without updating PID file ($PIDFILE)\n" | $TEE
+        return 1  # not waiting any more.
+      fi
+    fi
+
+    echo -n "."
+    i=`expr $i + 1`
+    sleep 1
+  done
+
+  if [ -z "$i" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+start() {
+  echo -n "$DATE: Starting $PROGNAME [NodeId:$NODEID] : " | $TEE
+  if [ -n "$PID" ]; then
+    if (kill -0 $PID 2>/dev/null); then
+      echo -e "Error : $PROGNAME is already running with pid $PID\n" | $TEE
+      return 0
+    else
+    rm -f ${PIDFILE}
+    rm -f ${LOCKFILE}
+    fi
+  fi
+
+  $CMD | $TEE
+  wait_for_pid created
+  RETVAL=$?
+  [ $RETVAL -eq 0 ] && /bin/touch $LOCKFILE
+
+  if [ $RETVAL -eq 0 ]; then
+    echo -e "OK" | $TEE
+    return 0
+  else
+    echo -e "Error : Failed to start $PROGNAME \n" | $TEE
+    return 1
+  fi
+}
+
+stop() {
+  echo -n "$DATE: Stopping $PROGNAME [NodeId:$NODEID] : " | $TEE
+
+  if [ ! -s "$PIDFILE" ]; then
+    echo -e "Error : Not exists PID file\n" | $TEE
+    rm -f ${PIDFILE}
+    rm -f ${LOCKFILE}
+    return 1
+  fi
+
+  if ! (kill -0 $PID 2>/dev/null); then
+    echo -e "Error : Failed $PROGNAME not running\n" | $TEE
+    rm -f ${PIDFILE}
+    rm -f ${LOCKFILE}
+    return 1
+  fi
+
+  $MGM -e "$MGMEXECSTR" | $TEE
+  wait_for_pid removed
+  RETVAL=$?
+
+  if [ $RETVAL -eq 0 ]; then
+    echo -e "OK" | $TEE
+    rm -f ${PIDFILE}
+    rm -f ${LOCKFILE}
+    return 0
+  else
+    echo -e "Error : Failed to stop $PROGNAME \n" | $TEE
+    return 1
+  fi
+}
+
+usage() {
+  echo "Usage: ndb {start|stop|restart|status} {ndb_mgmd|ndbd|ndbmtd} NodeId"
+}
+
+
+
+case $PROGNAME in
+  ndb_mgmd|ndbd|ndbmtd)
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+esac
+
+if [ ! -n "$NODEID" ]; then
+  usage
+  exit 1
+fi
+
+case $1 in
+  start)
+    start
+    RETVAL=$?
+    ;;
+  stop)
+    stop
+    RETVAL=$?
+    ;;
+  status)
+    status -p $PIDFILE $PROGNAME
+    RETVAL=$?
+    ;;
+  restart)
+    stop
+    start
+    RETVAL=$?
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+esac
+exit $RETVAL

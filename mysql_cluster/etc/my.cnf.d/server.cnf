@@ -1,0 +1,46 @@
+#
+# These groups are read by MariaDB server.
+# Use it for options that only the server (but not clients) should see
+#
+# See the examples of server my.cnf files in /usr/share/mysql/
+#
+
+# this is read by the standalone daemon and embedded servers
+[server]
+datadir=/mysql_cluster/mysql
+secure_file_priv=
+log-queries-not-using-indexes
+skip-name-resolve
+slow-query-log=1
+socket=/mysql_cluster/mysql/mysql.sock
+
+bind_address=0.0.0.0
+port=3306
+
+innodb_buffer_pool_size = 128M
+#innodb_buffer_pool_instances = 8
+innodb_flush_log_at_trx_commit = 0
+innodb_flush_neighbors = 0
+innodb_lock_wait_timeout = 600
+innodb_log_file_size = 1G
+innodb_log_files_in_group = 2
+long_query_time = 1
+query_cache_size = 0
+sync_binlog = 0
+#log_bin
+
+open_files_limit=131072
+#handlersocket_address="0.0.0.0"
+#handlersocket_port="9998"
+#handlersocket_port_wr="9999"
+#handlersocket_threads=1
+#handlersocket_timeout=10
+#handlersocket_wrlock_timeout=1
+
+
+# this is only for the mysqld standalone daemon
+[mysqld]
+
+# this is only for embedded server
+[embedded]
+
